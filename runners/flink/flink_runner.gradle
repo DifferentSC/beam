@@ -88,6 +88,11 @@ configurations {
   validatesRunner
 }
 
+repositories{
+  mavenLocal()
+  mavenCentral()
+}
+
 dependencies {
   compile library.java.vendored_guava_20_0
   compile project(path: ":sdks:java:core", configuration: "shadow")
@@ -107,6 +112,8 @@ dependencies {
   compile "org.apache.flink:flink-java:$flink_version"
   compile "org.apache.flink:flink-runtime_2.11:$flink_version"
   compile "org.apache.flink:flink-streaming-java_2.11:$flink_version"
+  compile "org.apache.flink:flink-statebackend-rocksdb_2.11:$flink_version"
+  compile "edu.useoul.streamix:streamix:1.0-SNAPSHOT"
   testCompile project(path: ":sdks:java:core", configuration: "shadowTest")
   // FlinkStateInternalsTest extends abstract StateInternalsTest
   testCompile project(path: ":runners:core-java", configuration: "testRuntime")

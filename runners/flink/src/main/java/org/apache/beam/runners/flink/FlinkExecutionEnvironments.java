@@ -19,10 +19,13 @@ package org.apache.beam.runners.flink;
 
 import static org.apache.flink.streaming.api.environment.StreamExecutionEnvironment.getDefaultLocalParallelism;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
+
+import edu.useoul.streamix.statebackend.StreamixConfig;
 import org.apache.beam.vendor.guava.v20_0.com.google.common.annotations.VisibleForTesting;
 import org.apache.beam.vendor.guava.v20_0.com.google.common.net.HostAndPort;
 import org.apache.flink.api.common.ExecutionConfig;
@@ -38,6 +41,8 @@ import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.configuration.GlobalConfiguration;
 import org.apache.flink.configuration.JobManagerOptions;
 import org.apache.flink.configuration.RestOptions;
+import org.apache.flink.contrib.streaming.state.OptionsFactory;
+import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.state.StateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -45,6 +50,7 @@ import org.apache.flink.streaming.api.environment.CheckpointConfig.ExternalizedC
 import org.apache.flink.streaming.api.environment.RemoteStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.graph.StreamGraph;
+import org.rocksdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -245,6 +251,58 @@ public class FlinkExecutionEnvironments {
       flinkStreamEnv.getConfig().setAutoWatermarkInterval(options.getAutoWatermarkInterval());
     }
 
+    final String stateBackendName = options.getStateBackendName();
+    try {
+      if (stateBackendName != null) {
+        if (stateBackendName.equals("rocksdb")) {
+          final RocksDBStateBackend rocksDBStateBackend = new RocksDBStateBackend("file:///tmp/");
+          rocksDBStateBackend.setDbStoragePath("/nvme");
+          //rocksDBStateBackend.setPredefinedOptions(PredefinedOptions.FLASH_SSD_OPTIMIZED);
+          //rocksDBStateBackend.setEnableStatistics(true);
+          rocksDBStateBackend.setOptions(new OptionsFactory() {
+            @Override
+            public DBOptions createDBOptions(DBOptions dbOptions)
+            {
+              return dbOptions
+                  .setBytesPerSync(1024 * 1024);
+            }
+            @Override
+            public ColumnFamilyOptions createColumnOptions(ColumnFamilyOptions columnFamilyOptions) {
+
+              final TableFormatConfig tableFormatConfig;
+              tableFormatConfig = new BlockBasedTableConfig();
+
+              return columnFamilyOptions
+                  .setTableFormatConfig(new BlockBasedTableConfig()
+                      .setBlockCacheSize(256 * 1024 * 1024)
+                      .setBlockSize(16 * 1024)
+                  )
+                  .setWriteBufferSize(256 * 1024 * 1024)
+                  .setMemTableConfig(new SkipListMemTableConfig())
+                  .setMaxWriteBufferNumber(1)
+                  .setTargetFileSizeBase(128 * 1024 * 1024)
+                  .setLevelZeroSlowdownWritesTrigger(40)
+                  .setLevelZeroStopWritesTrigger(46)
+                  .setBloomLocality(1)
+                  .setCompressionType(CompressionType.NO_COMPRESSION)
+                  .setTableFormatConfig(tableFormatConfig)
+                  .useFixedLengthPrefixExtractor(16)
+                  .setOptimizeFiltersForHits(false);
+              //optimizeForPointLookup(writeBufferSize * 1024 * 1024);
+            }
+          });
+          flinkStreamEnv.setStateBackend(rocksDBStateBackend);
+        } else if (stateBackendName.equals("streamix")) {
+          final StreamixConfig streamixConfig = new StreamixConfig()
+              .logDirectory("/nvme")
+              .writeBufferCapacityInBytes(16 * 1024 * 1024)
+              .numLogFiles(16)
+              .cacheRatio(0.05);
+        }
+      }
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
     // State backend
     final StateBackend stateBackend = options.getStateBackend();
     if (stateBackend != null) {

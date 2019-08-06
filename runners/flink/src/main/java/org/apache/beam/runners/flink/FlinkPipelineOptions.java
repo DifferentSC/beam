@@ -152,6 +152,14 @@ public interface FlinkPipelineOptions
 
   void setStateBackend(StateBackend stateBackend);
 
+  @Description(
+      "sets the state backend in string to use in streaming mode. "
+          + "Otherwise the default is read from the Flink config. This could override the default state backend setting")
+  @JsonIgnore
+  String getStateBackendName();
+
+  void setStateBackendName(String stateBackendName);
+
   @Description("Enable/disable Beam metrics in Flink Runner")
   @Default.Boolean(true)
   Boolean getEnableMetrics();
