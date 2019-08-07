@@ -26,6 +26,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import edu.useoul.streamix.statebackend.StreamixConfig;
+import edu.useoul.streamix.statebackend.StreamixStateBackend;
 import org.apache.beam.vendor.guava.v20_0.com.google.common.annotations.VisibleForTesting;
 import org.apache.beam.vendor.guava.v20_0.com.google.common.net.HostAndPort;
 import org.apache.flink.api.common.ExecutionConfig;
@@ -298,6 +299,8 @@ public class FlinkExecutionEnvironments {
               .writeBufferCapacityInBytes(16 * 1024 * 1024)
               .numLogFiles(16)
               .cacheRatio(0.05);
+          final StreamixStateBackend streamixStateBackend = new StreamixStateBackend(streamixConfig);
+          flinkStreamEnv.setStateBackend(streamixStateBackend);
         }
       }
     } catch (final IOException e) {
