@@ -301,7 +301,7 @@ public class FlinkExecutionEnvironments {
         }
       }
     } catch (final IOException e) {
-      e.printStackTrace();
+      throw new
     }
     // State backend
     final StateBackend stateBackend = options.getStateBackend();
