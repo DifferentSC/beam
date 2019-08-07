@@ -301,7 +301,7 @@ public class FlinkExecutionEnvironments {
         }
       }
     } catch (final IOException e) {
-      throw new
+      throw new RuntimeException(e);
     }
     // State backend
     final StateBackend stateBackend = options.getStateBackend();
