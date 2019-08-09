@@ -77,6 +77,7 @@ import org.apache.beam.sdk.transforms.reflect.DoFnInvokers;
 import org.apache.beam.sdk.transforms.reflect.DoFnSignature;
 import org.apache.beam.sdk.transforms.reflect.DoFnSignatures;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
+import org.apache.beam.sdk.transforms.windowing.WindowFn;
 import org.apache.beam.sdk.util.WindowedValue;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollectionView;
@@ -356,8 +357,26 @@ public class DoFnOperator<InputT, OutputT> extends AbstractStreamOperator<Window
 
     // StatefulPardo or WindowDoFn
     if (keyCoder != null) {
+      String windowFn = windowingStrategy.getWindowFn().toString();
+      String readPattern;
+      String cachePolicy;
+      switch (windowFn) {
+        case "SlidingWindows":
+        case "FixedWindows":
+        case "GlobalWindows":
+          readPattern = "aligned";
+          cachePolicy = "none";
+          break;
+        case "Sessions":
+          readPattern = "unaligned";
+          cachePolicy = "session";
+          break;
+        default:
+          readPattern = "unknown";
+          cachePolicy = "none";
+      }
       keyedStateInternals =
-          new FlinkStateInternals<>((KeyedStateBackend) getKeyedStateBackend(), keyCoder);
+          new FlinkStateInternals<>((KeyedStateBackend) getKeyedStateBackend(), keyCoder, readPattern, cachePolicy);
 
       if (doFn != null) {
         DoFnSignature signature = DoFnSignatures.getSignature(doFn.getClass());
