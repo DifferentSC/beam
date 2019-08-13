@@ -91,10 +91,12 @@ configurations {
 repositories{
   mavenLocal()
   mavenCentral()
+  jcenter()
 }
 
 dependencies {
   compile library.java.vendored_guava_20_0
+  compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
   compile project(path: ":sdks:java:core", configuration: "shadow")
   compile project(":runners:core-java")
   compile project(":runners:core-construction-java")

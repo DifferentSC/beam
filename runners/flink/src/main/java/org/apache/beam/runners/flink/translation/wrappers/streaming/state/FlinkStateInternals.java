@@ -65,6 +65,7 @@ import org.apache.flink.runtime.state.KeyedStateBackend;
 import org.apache.flink.runtime.state.VoidNamespace;
 import org.apache.flink.runtime.state.VoidNamespaceSerializer;
 import org.joda.time.Instant;
+import org.json.simple.*;
 
 /**
  * {@link StateInternals} that uses a Flink {@link KeyedStateBackend} to manage state.
@@ -315,7 +316,6 @@ public class FlinkStateInternals<K> implements StateInternals {
     private final ListStateDescriptor<T> flinkStateDescriptor;
     private final KeyedStateBackend<ByteBuffer> flinkStateBackend;
     private final boolean storesVoidValues;
-    private final String stateInfoJson;
 
     FlinkBagState(
         KeyedStateBackend<ByteBuffer> flinkStateBackend,
@@ -329,9 +329,14 @@ public class FlinkStateInternals<K> implements StateInternals {
       this.stateId = stateId;
       this.flinkStateBackend = flinkStateBackend;
       this.storesVoidValues = coder instanceof VoidCoder;
-      this.stateInfoJson = "{\"id\":\""+stateId+"\",\"read\":\""+read+"\",\"write\":\"append\",\"cache-policy\":\""+cachePolicy+"\"}";
+      JSONObject stateInfo = new JSONObject();
+      stateInfo.put("id",stateId);
+      stateInfo.put("read", read);
+      stateInfo.put("write", "append");
+      stateInfo.put("cache-policy", cachePolicy);
+      //this.stateInfoJson = "{\"id\":\""+stateId+"\",\"read\":\""+read+"\",\"write\":\"append\",\"cache-policy\":\""+cachePolicy+"\"}";
       this.flinkStateDescriptor =
-          new ListStateDescriptor<>(stateInfoJson, new CoderTypeSerializer<>(coder));
+          new ListStateDescriptor<>(stateInfo.toJSONString(), new CoderTypeSerializer<>(coder));
     }
 
     @Override
@@ -457,7 +462,6 @@ public class FlinkStateInternals<K> implements StateInternals {
     private final Combine.CombineFn<InputT, AccumT, OutputT> combineFn;
     private final ValueStateDescriptor<AccumT> flinkStateDescriptor;
     private final KeyedStateBackend<ByteBuffer> flinkStateBackend;
-    private final String stateInfoJson;
 
     FlinkCombiningState(
         KeyedStateBackend<ByteBuffer> flinkStateBackend,
@@ -472,10 +476,14 @@ public class FlinkStateInternals<K> implements StateInternals {
       this.stateId = stateId;
       this.combineFn = combineFn;
       this.flinkStateBackend = flinkStateBackend;
-      this.stateInfoJson = "{\"id\":\""+stateId+"\",\"read\":\""+read+"\",\"write\":\"update\",\"cache-policy\":\""+cachePolicy+"\"}";
-
+      JSONObject stateInfo = new JSONObject();
+      stateInfo.put("id",stateId);
+      stateInfo.put("read", read);
+      stateInfo.put("write", "update");
+      stateInfo.put("cache-policy", cachePolicy);
+      //this.stateInfoJson = "{\"id\":\""+stateId+"\",\"read\":\""+read+"\",\"write\":\"update\",\"cache-policy\":\""+cachePolicy+"\"}";
       flinkStateDescriptor =
-          new ValueStateDescriptor<>(stateInfoJson, new CoderTypeSerializer<>(accumCoder));
+          new ValueStateDescriptor<>(stateInfo.toJSONString(), new CoderTypeSerializer<>(accumCoder));
     }
 
     @Override
