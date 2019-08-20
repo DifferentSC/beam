@@ -54,7 +54,12 @@ public class Query11Median extends NexmarkQueryTransform<BidsPerSession> {
 				events
 						.apply(NexmarkQueryUtil.JUST_BIDS)
 						.apply(
-								WithKeys.of(bid -> bid.bidder));
+								WithKeys.of(new SerializableFunction<Bid, Long>() {
+									@Override
+									public Long apply(Bid input) {
+										return input.bidder;
+									}
+								}));
 
 		PCollection<KV<Long, Bid>> biddersWindowed =
 				bidders.apply(
