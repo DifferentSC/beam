@@ -46,7 +46,7 @@ public enum NexmarkQueryName {
   SESSION_SIDE_INPUT_JOIN,
 
   // Custom queries for Streamix evaluation
-  USER_SESSIONS_COUNT;
+  USER_SESSIONS_MEDIAN;
 
   private @Nullable Integer number;
 

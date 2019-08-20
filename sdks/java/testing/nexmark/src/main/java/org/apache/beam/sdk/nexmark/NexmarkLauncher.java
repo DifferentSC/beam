@@ -1275,7 +1275,7 @@ public class NexmarkLauncher<OptionT extends NexmarkOptions> {
             NexmarkQueryName.SESSION_SIDE_INPUT_JOIN,
             new NexmarkQuery(configuration, new SessionSideInputJoin(configuration)))
         .put(
-            NexmarkQueryName.USER_SESSIONS_COUNT,
+            NexmarkQueryName.USER_SESSIONS_MEDIAN,
             new NexmarkQuery(configuration, new Query11Median(configuration)))
         .build();
   }
