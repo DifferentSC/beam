@@ -46,36 +46,7 @@ import org.apache.beam.sdk.nexmark.model.Bid;
 import org.apache.beam.sdk.nexmark.model.Event;
 import org.apache.beam.sdk.nexmark.model.KnownSize;
 import org.apache.beam.sdk.nexmark.model.Person;
-import org.apache.beam.sdk.nexmark.queries.BoundedSideInputJoin;
-import org.apache.beam.sdk.nexmark.queries.BoundedSideInputJoinModel;
-import org.apache.beam.sdk.nexmark.queries.NexmarkQuery;
-import org.apache.beam.sdk.nexmark.queries.NexmarkQueryModel;
-import org.apache.beam.sdk.nexmark.queries.NexmarkQueryUtil;
-import org.apache.beam.sdk.nexmark.queries.Query0;
-import org.apache.beam.sdk.nexmark.queries.Query0Model;
-import org.apache.beam.sdk.nexmark.queries.Query1;
-import org.apache.beam.sdk.nexmark.queries.Query10;
-import org.apache.beam.sdk.nexmark.queries.Query11;
-import org.apache.beam.sdk.nexmark.queries.Query12;
-import org.apache.beam.sdk.nexmark.queries.Query1Model;
-import org.apache.beam.sdk.nexmark.queries.Query2;
-import org.apache.beam.sdk.nexmark.queries.Query2Model;
-import org.apache.beam.sdk.nexmark.queries.Query3;
-import org.apache.beam.sdk.nexmark.queries.Query3Model;
-import org.apache.beam.sdk.nexmark.queries.Query4;
-import org.apache.beam.sdk.nexmark.queries.Query4Model;
-import org.apache.beam.sdk.nexmark.queries.Query5;
-import org.apache.beam.sdk.nexmark.queries.Query5Model;
-import org.apache.beam.sdk.nexmark.queries.Query6;
-import org.apache.beam.sdk.nexmark.queries.Query6Model;
-import org.apache.beam.sdk.nexmark.queries.Query7;
-import org.apache.beam.sdk.nexmark.queries.Query7Model;
-import org.apache.beam.sdk.nexmark.queries.Query8;
-import org.apache.beam.sdk.nexmark.queries.Query8Model;
-import org.apache.beam.sdk.nexmark.queries.Query9;
-import org.apache.beam.sdk.nexmark.queries.Query9Model;
-import org.apache.beam.sdk.nexmark.queries.SessionSideInputJoin;
-import org.apache.beam.sdk.nexmark.queries.SessionSideInputJoinModel;
+import org.apache.beam.sdk.nexmark.queries.*;
 import org.apache.beam.sdk.nexmark.queries.sql.SqlBoundedSideInputJoin;
 import org.apache.beam.sdk.nexmark.queries.sql.SqlQuery0;
 import org.apache.beam.sdk.nexmark.queries.sql.SqlQuery1;
@@ -1303,6 +1274,9 @@ public class NexmarkLauncher<OptionT extends NexmarkOptions> {
         .put(
             NexmarkQueryName.SESSION_SIDE_INPUT_JOIN,
             new NexmarkQuery(configuration, new SessionSideInputJoin(configuration)))
+        .put(
+            NexmarkQueryName.USER_SESSIONS_COUNT,
+            new NexmarkQuery(configuration, new Query11Median(configuration)))
         .build();
   }
 

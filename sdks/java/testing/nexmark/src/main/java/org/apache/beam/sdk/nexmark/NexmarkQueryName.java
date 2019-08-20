@@ -43,7 +43,10 @@ public enum NexmarkQueryName {
 
   // Other non-numbered queries
   BOUNDED_SIDE_INPUT_JOIN,
-  SESSION_SIDE_INPUT_JOIN;
+  SESSION_SIDE_INPUT_JOIN,
+
+  // Custom queries for Streamix evaluation
+  USER_SESSIONS_COUNT;
 
   private @Nullable Integer number;
 
