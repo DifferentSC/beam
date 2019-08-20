@@ -22,10 +22,7 @@ import org.apache.beam.sdk.nexmark.model.Bid;
 import org.apache.beam.sdk.nexmark.model.BidsPerSession;
 import org.apache.beam.sdk.nexmark.model.Event;
 import org.apache.beam.sdk.nexmark.util.Utility;
-import org.apache.beam.sdk.transforms.Count;
-import org.apache.beam.sdk.transforms.DoFn;
-import org.apache.beam.sdk.transforms.GroupByKey;
-import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.*;
 import org.apache.beam.sdk.transforms.windowing.AfterPane;
 import org.apache.beam.sdk.transforms.windowing.Repeatedly;
 import org.apache.beam.sdk.transforms.windowing.Sessions;
@@ -57,16 +54,7 @@ public class Query11Median extends NexmarkQueryTransform<BidsPerSession> {
 				events
 						.apply(NexmarkQueryUtil.JUST_BIDS)
 						.apply(
-								name + ".Rekey",
-								ParDo.of(
-										new DoFn<Bid, KV<Long, Bid>>() {
-
-											@ProcessElement
-											public void processElement(ProcessContext c) {
-												Bid bid = c.element();
-												c.output(new KV<>(bid.bidder, bid));
-											}
-										}));
+								WithKeys.of(bid -> bid.bidder));
 
 		PCollection<KV<Long, Bid>> biddersWindowed =
 				bidders.apply(
