@@ -21,6 +21,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * The utility class used for query11 median.
+ */
 public class Utility {
 
 	private Utility() {
